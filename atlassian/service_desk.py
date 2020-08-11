@@ -104,9 +104,8 @@ class ServiceDesk(AtlassianRestAPI):
         :return: Status name
         """
         request = self.get('rest/servicedeskapi/request/{}/status'.format(issue_id_or_key))
-        if request:
-            if request.get('values', []):
-                return request.get('values', [])[0].get('status', {})
+        if request and request.get('values', []):
+            return request.get('values', [])[0].get('status', {})
         return {}
 
     def get_customer_transitions(self, issue_id_or_key):
@@ -245,7 +244,6 @@ class ServiceDesk(AtlassianRestAPI):
                      Default: 50. See the Pagination section for more details.
         :return:
         """
-        url_without_sd_id = 'rest/servicedeskapi/organization'
         url_with_sd_id = 'rest/servicedeskapi/servicedesk/{}/organization'.format(service_desk_id)
         params = {}
         if start is not None:
@@ -254,6 +252,7 @@ class ServiceDesk(AtlassianRestAPI):
             params['limit'] = int(limit)
 
         if service_desk_id is None:
+            url_without_sd_id = 'rest/servicedeskapi/organization'
             return self.get(url_without_sd_id, headers=self.experimental_headers, params=params)
         return self.get(url_with_sd_id, headers=self.experimental_headers, params=params)
 
@@ -406,15 +405,13 @@ class ServiceDesk(AtlassianRestAPI):
         :param filename: str
         :return: Temporary Attachment ID
         """
-        headers = {'X-Atlassian-Token': 'no-check', 'X-ExperimentalApi': 'opt-in'}
-        url = 'rest/servicedeskapi/servicedesk/{}/attachTemporaryFile'.format(service_desk_id)
-
         with open(filename, 'rb') as file:
+            headers = {'X-Atlassian-Token': 'no-check', 'X-ExperimentalApi': 'opt-in'}
+            url = 'rest/servicedeskapi/servicedesk/{}/attachTemporaryFile'.format(service_desk_id)
+
             result = self.post(path=url, headers=headers,
                                files={'file': file}).get('temporaryAttachments')
-            temp_attachment_id = result[0].get('temporaryAttachmentId')
-
-            return temp_attachment_id
+            return result[0].get('temporaryAttachmentId')
 
     def add_attachment(self, issue_id_or_key, temp_attachment_id, public=True, comment=None):
         """

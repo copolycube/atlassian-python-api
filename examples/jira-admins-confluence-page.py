@@ -26,14 +26,14 @@ html = ["""<table>
                 </tr>"""]
 
 
-for data in jira.project_leaders():
-    log.info('{project_key} leader is {lead_name} <{lead_email}>'.format(**data))
-    row = """<tr>
+row = """<tr>
                 <td>{project_key}</td>
                 <td>{project_name}</td>
                 <td>{lead_name}</td>
                 <td><a href="mailto:{lead_email}">{lead_email}</a></td>
              </tr>"""
+for data in jira.project_leaders():
+    log.info('{project_key} leader is {lead_name} <{lead_email}>'.format(**data))
     html.append(row.format(**data))
 
 html.append('</table><p></p><p></p>')
