@@ -150,12 +150,7 @@ class Jira8(AtlassianRestAPI):
         """
         url = 'rest/api/2/issue'
         data = {'fields': fields}
-        params = {}
-
-        if update_history is True:
-            params['updateHistory'] = 'true'
-        else:
-            params['updateHistory'] = 'false'
+        params = {'updateHistory': 'true' if update_history is True else 'false'}
 
         return self.post(url, params=params, data=data)
 
@@ -183,12 +178,7 @@ class Jira8(AtlassianRestAPI):
         :return:
         """
         url = 'rest/api/2/issue/{}'.format(issue_id_or_key)
-        params = {}
-
-        if delete_subtasks is True:
-            params['deleteSubtasks'] = 'true'
-        else:
-            params['deleteSubtasks'] = 'false'
+        params = {'deleteSubtasks': 'true' if delete_subtasks is True else 'false'}
 
         log.warning('Removing issue {}...'.format(issue_id_or_key))
 
@@ -209,11 +199,7 @@ class Jira8(AtlassianRestAPI):
         params = {}
         data = {'update': fields}
 
-        if notify_users is True:
-            params['notifyUsers'] = 'true'
-        else:
-            params['notifyUsers'] = 'false'
-
+        params['notifyUsers'] = 'true' if notify_users is True else 'false'
         return self.put(url, data=data, params=params)
 
     def get_issue(self, issue_id_or_key, fields=None, properties=None, update_history=True):

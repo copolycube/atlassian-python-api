@@ -14,7 +14,7 @@ def page_version_remover(server, content_id, remained_page_numbers):
     if len(response) > 0 and latest_version_count > remained_page_numbers:
         print("Number of {} latest version {}".format(
             confluence.url_joiner(confluence.url, "/pages/viewpage.action?pageId=" + content_id), latest_version_count))
-        for version_page_counter in range(1, (latest_version_count - remained_page_numbers + 1), 1):
+        for _ in range(1, (latest_version_count - remained_page_numbers + 1), 1):
             server.remove_content_history(content_id, 1)
     else:
         print('Number of page history smaller than remained')

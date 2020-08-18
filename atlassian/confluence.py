@@ -90,9 +90,12 @@ class Confluence(AtlassianRestAPI):
         :type page_id: str
         :return:
         """
-        parent_content_id = ((self.get_page_by_id(page_id=page_id, expand='ancestors').get('ancestors') or {})[-1].get(
-            'id') or None)
-        return parent_content_id
+        return (
+            self.get_page_by_id(page_id=page_id, expand='ancestors').get(
+                'ancestors'
+            )
+            or {}
+        )[-1].get('id') or None
 
     def get_page_space(self, page_id):
         """
@@ -122,7 +125,6 @@ class Confluence(AtlassianRestAPI):
             params['limit'] = int(limit)
         if space is not None:
             params['spaceKey'] = str(space)
-        if space is not None:
             params['title'] = str(title)
         try:
             return (self.get(url, params=params) or {}).get('results')[0]
@@ -428,9 +430,9 @@ class Confluence(AtlassianRestAPI):
         :type  comment: ``str``
         """
         page_id = self.get_page_id(space=space, title=title) if page_id is None else page_id
-        type = 'attachment'
         if page_id is not None:
             comment = comment if comment else "Uploaded {filename}.".format(filename=name)
+            type = 'attachment'
             data = {
                 'type': type,
                 "fileName": name,

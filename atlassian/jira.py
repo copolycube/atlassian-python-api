@@ -311,9 +311,8 @@ class Jira(AtlassianRestAPI):
         :param included_archived: boolean whether to include archived projects in response, default: false
         :return:
         """
-        params = {}
         if included_archived:
-            params['includeArchived'] = included_archived
+            params = {'includeArchived': included_archived}
         return self.get('rest/api/2/project')
 
     def get_all_projects(self, included_archived=None):
@@ -501,7 +500,7 @@ class Jira(AtlassianRestAPI):
         :param list issue_list:
         :return:
         """
-        missing_issues = list()
+        missing_issues = []
         jql = 'key in ({})'.format(', '.join(['"{}"'.format(key) for key in issue_list]))
         query_result = self.jql(jql, fields=fields)
         if 'errorMessages' in query_result.keys():
@@ -617,7 +616,7 @@ class Jira(AtlassianRestAPI):
             tab_id = screen_tab['id']
             if tab_id:
                 tab_fields = self.get_screen_tab_fields(screen_id=screen_id, tab_id=tab_id)
-                fields = fields + tab_fields
+                fields += tab_fields
         return fields
 
     def get_issue_labels(self, issue_key):
@@ -726,11 +725,7 @@ class Jira(AtlassianRestAPI):
         :return: Returned even if no groups match the given substring
         """
         url = 'rest/api/2/groups/picker'
-        params = {}
-        if query:
-            params['query'] = query
-        else:
-            params['query'] = ''
+        params = {'query': query if query else ''}
         if exclude:
             params['exclude'] = exclude
         if limit:
@@ -910,11 +905,11 @@ class Jira(AtlassianRestAPI):
         :param filename: str, name, if file in current directory or full path to file
         """
         log.warning('Adding attachment...')
-        headers = {'X-Atlassian-Token': 'no-check'}
         with open(filename, 'rb') as file:
             files = {'file': file}
             url = 'rest/api/2/issue/{}/attachments'.format(issue_key)
 
+            headers = {'X-Atlassian-Token': 'no-check'}
             return self.post(url, headers=headers, files=files)
 
     def get_issue_remotelinks(self, issue_key, global_id=None, internal_id=None):
@@ -1850,13 +1845,13 @@ class Jira(AtlassianRestAPI):
         :param filter_id: int
         :param location: dict, Optional. Default is user
         """
-        data = {'name': name,
-                'type': type,
-                'filterId': filter_id}
-        if location:
-            data['location'] = location
-        else:
-            data['location'] = {'type': 'user'}
+        data = {
+            'name': name,
+            'type': type,
+            'filterId': filter_id,
+            'location': location if location else {'type': 'user'},
+        }
+
         url = 'rest/agile/1.0/board'
         return self.post(url, data=data)
 

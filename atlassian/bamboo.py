@@ -37,8 +37,7 @@ class Bamboo(AtlassianRestAPI):
             # Check if start index was reset when reaching the end of the pages list
             if results['start-index'] < start_index:
                 break
-            for r in results[element_key]:
-                yield r
+            yield from results[element_key]
             start_index += results['max-result']
 
     def base_list_call(self, resource, expand, favourite, clover_enabled, max_results, label=None, start_index=0,
@@ -122,14 +121,15 @@ class Bamboo(AtlassianRestAPI):
         :return:
         """
         resource = "result"
-        if project_key and plan_key and job_key and build_number:
-            resource += "/{}-{}-{}/{}".format(project_key, plan_key, job_key, build_number)
-        elif project_key and plan_key and build_number:
-            resource += "/{}-{}/{}".format(project_key, plan_key, build_number)
-        elif project_key and plan_key:
-            resource += "/{}-{}".format(project_key, plan_key)
-        elif project_key:
-            resource += '/' + project_key
+        if project_key:
+            if plan_key and job_key and build_number:
+                resource += "/{}-{}-{}/{}".format(project_key, plan_key, job_key, build_number)
+            elif plan_key and build_number:
+                resource += "/{}-{}/{}".format(project_key, plan_key, build_number)
+            elif plan_key:
+                resource += "/{}-{}".format(project_key, plan_key)
+            else:
+                resource += '/' + project_key
 
         params = {}
         if issue_key:
@@ -306,8 +306,7 @@ class Bamboo(AtlassianRestAPI):
 
     def deployment_projects(self):
         resource = 'deploy/project/all'
-        for project in self.get(self.resource_url(resource)):
-            yield project
+        yield from self.get(self.resource_url(resource))
 
     def deployment_environment_results(self, env_id, expand=None, max_results=25):
         resource = 'deploy/environment/{environmentId}/results'.format(environmentId=env_id)
@@ -318,8 +317,7 @@ class Bamboo(AtlassianRestAPI):
         while params['start-index'] < size:
             results = self.get(self.resource_url(resource), params=params)
             size = results['size']
-            for r in results['results']:
-                yield r
+            yield from results['results']
             params['start-index'] += results['max-result']
 
     def deployment_dashboard(self, project_id=None):
@@ -341,8 +339,7 @@ class Bamboo(AtlassianRestAPI):
         while params['start-index'] < size:
             results = self.get(self.resource_url('search/branches'), params=params)
             size = results['size']
-            for r in results['searchResults']:
-                yield r
+            yield from results['searchResults']
             params['start-index'] += results['max-result']
 
     def plan_branches(self, plan_key, expand=None, favourite=False, clover_enabled=False, max_results=25):
@@ -366,9 +363,12 @@ class Bamboo(AtlassianRestAPI):
         """
         resource = 'plan/{plan_key}/branch/{branch_name}'.format(plan_key=plan_key, branch_name=branch_name)
         if vcs_branch:
-            params = {'vcsBranch':vcs_branch}
-            params['enabled'] = 'true' if enabled else 'false'
-            params['cleanupEnabled'] = 'true' if cleanup_enabled else 'false'
+            params = {
+                'vcsBranch': vcs_branch,
+                'enabled': 'true' if enabled else 'false',
+                'cleanupEnabled': 'true' if cleanup_enabled else 'false',
+            }
+
         return self.put(self.resource_url(resource), params=params)
 
     def enable_plan(self, plan_key):

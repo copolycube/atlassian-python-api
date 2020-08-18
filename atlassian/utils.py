@@ -16,10 +16,7 @@ def is_email(string):
     """
     email_regex = r'^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$'
 
-    if isinstance(string, str) and not re.match(email_regex, string):
-        return False
-    else:
-        return True
+    return bool(not isinstance(string, str) or re.match(email_regex, string))
 
 
 def html_email(email, title=None):

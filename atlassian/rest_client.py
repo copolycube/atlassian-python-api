@@ -38,10 +38,7 @@ class AtlassianRestAPI(object):
         self.api_version = api_version
         self.cookies = cookies
         self.advanced_mode = advanced_mode
-        if session is None:
-            self._session = requests.Session()
-        else:
-            self._session = session
+        self._session = requests.Session() if session is None else session
         if username and password:
             self._create_basic_session(username, password)
         elif oauth is not None:
@@ -145,10 +142,7 @@ class AtlassianRestAPI(object):
             self.response = response
             return response
         try:
-            if response.text:
-                response_content = response.json()
-            else:
-                response_content = response.content
+            response_content = response.json() if response.text else response.content
         except ValueError:
             response_content = response.content
         if response.status_code == 200:

@@ -60,7 +60,7 @@ class Bitbucket(AtlassianRestAPI):
         :return:
         """
         data = self.project(key)
-        if not 'errors' in data:
+        if 'errors' not in data:
             data.update(params)
             url = 'rest/api/1.0/projects/{0}'.format(key)
             return self.put(url, data=data)
@@ -867,9 +867,7 @@ class Bitbucket(AtlassianRestAPI):
         body = {}
         if tag_name is not None:
             body['name'] = tag_name
-        if tag_name is not None:
             body['startPoint'] = commit_revision
-        if tag_name is not None:
             body['message'] = description
         return self.post(url, data=body)
 
@@ -1086,7 +1084,6 @@ class Bitbucket(AtlassianRestAPI):
         body = {}
         if new_repository is not None:
             body['name'] = new_repository
-        if new_repository is not None:
             body['project'] = {'key': project}
         return self.post(url, data=body)
 
